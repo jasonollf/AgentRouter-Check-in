@@ -1,13 +1,9 @@
 name: Ayrouter Daily Check-in
 
 on:
-  # ==========================================
-  # 每天北京时间 06:45 执行
-  # GitHub Actions 使用 UTC
-  # 北京时间 06:45 = UTC 22:45（前一天）
-  # ==========================================
   schedule:
-    - cron: '45 22 * * *'
+    - cron: '0 18 * * *' # UTC 18:00（北京时间 02:00）自动运行
+    
   # 支持手动触发
   workflow_dispatch:
 
@@ -29,7 +25,7 @@ jobs:
       # 1. 检出代码
       # ==============================
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -37,7 +33,7 @@ jobs:
       # 2. 安装 Python
       # ==============================
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -63,7 +59,7 @@ jobs:
       # 5. 缓存 Playwright 浏览器
       # ==============================
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
