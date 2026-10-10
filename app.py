@@ -2102,34 +2102,37 @@ def run_checkin():
     # 汇总 Telegram 通知
     # --------------------------------------------------------
 
-    message_lines = [
-        "🎁 <b>自动签到通知</b>",
-        "",
-    ]
+    # 仅在有账号签到失败时才通知；全部成功则静默
+    if success_count < total:
 
-    for label, balance, stage in results:
+        message_lines = [
+            "⚠️ <b>自动签到通知（存在失败）</b>",
+            "",
+        ]
 
-        if balance is None:
+        for label, balance, stage in results:
 
-            message_lines.append(
-                f"❌ {label}: 签到失败（{stage}）"
-            )
+            if balance is None:
 
-        else:
+                message_lines.append(
+                    f"❌ {label}: 签到失败（{stage}）"
+                )
 
-            message_lines.append(
-                f"✅ {label}: 余额 {balance}"
-            )
+            else:
 
-    message_lines.append("")
+                message_lines.append(
+                    f"✅ {label}: 余额 {balance}"
+                )
 
-    message_lines.append(
-        f"📊 成功 {success_count}/{total}"
-    )
+        message_lines.append("")
 
-    send_telegram(
-        "\n".join(message_lines)
-    )
+        message_lines.append(
+            f"📊 成功 {success_count}/{total}"
+        )
+
+        send_telegram(
+            "\n".join(message_lines)
+        )
 
     # --------------------------------------------------------
     # 任一账号失败则退出码 1
@@ -2179,3 +2182,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
