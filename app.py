@@ -1992,6 +1992,46 @@ def checkin_account(
 
 
 # ============================================================
+# GitHub Actions Step Summary
+# ============================================================
+
+def write_summary(results, success_count, total):
+    """
+    把签到结果写成 Markdown 表，追加到 $GITHUB_STEP_SUMMARY。
+
+    该环境变量由 GitHub Actions 每一步自动注入；
+    本地运行时不存在，直接跳过，不影响脚本。
+    """
+
+    path = os.getenv("GITHUB_STEP_SUMMARY")
+
+    if not path:
+        return
+
+    lines = [
+        "## 签到结果",
+        "",
+        f"成功 {success_count}/{total}",
+        "",
+        "| 账号 | 状态 | 余额 | 说明 |",
+        "|---|---|---|---|",
+    ]
+
+    for label, balance, stage in results:
+
+        if balance is None:
+            lines.append(f"| {label} | ❌ 失败 | - | {stage} |")
+        else:
+            lines.append(f"| {label} | ✅ 成功 | {balance} | - |")
+
+    try:
+        with open(path, "a", encoding="utf-8") as fh:
+            fh.write("\n".join(lines) + "\n")
+    except Exception as exc:
+        log(f"写入 Step Summary 失败: {type(exc).__name__}")
+
+
+# ============================================================
 # 主签到逻辑
 # ============================================================
 
@@ -2135,6 +2175,13 @@ def run_checkin():
         )
 
     # --------------------------------------------------------
+    # 写 GitHub Actions Step Summary
+    # （成功/失败都写，便于在 Actions 页直观查看结果）
+    # --------------------------------------------------------
+
+    write_summary(results, success_count, total)
+
+    # --------------------------------------------------------
     # 任一账号失败则退出码 1
     # --------------------------------------------------------
 
@@ -2182,4 +2229,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
