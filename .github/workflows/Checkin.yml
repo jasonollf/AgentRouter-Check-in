@@ -1,4 +1,4 @@
-name: Ayrouter Daily Check-in
+﻿name: Ayrouter Daily Check-in
 
 on:
   schedule:
@@ -149,8 +149,12 @@ jobs:
       # ==============================
       # 9. 设置代理（配置了 NODE_LINK / PROXY_CONFIG_URL 时启动 sing-box；
       #    否则脚本自动跳过，后续走代理池探测）
+      #
+      #    continue-on-error: 拉取订阅失败时不中断整个 workflow，
+      #    让第 10 步 app.py 照常运行并回退到代理池 / 直连兜底。
       # ==============================
       - name: Setup Proxy
+        continue-on-error: true
         env:
           NODE_LINK: ${{ secrets.NODE_LINK }}
           PROXY_CONFIG_URL: ${{ secrets.PROXY_CONFIG_URL }}
@@ -287,3 +291,4 @@ jobs:
           echo "=============================="
           echo "Keepalive 检查完成"
           echo "=============================="
+
