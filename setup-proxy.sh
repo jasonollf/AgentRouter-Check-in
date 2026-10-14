@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # setup-proxy.sh - 代理订阅解析、节点自动选择与 sing-box 启动
 # 环境变量:
 #   NODE_LINK（可选）- 单个代理节点链接，或订阅地址(URL)
