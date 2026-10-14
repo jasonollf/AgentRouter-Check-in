@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # setup-proxy.sh - 代理订阅解析、节点自动选择与 sing-box 启动
 # 环境变量:
 #   NODE_LINK（可选）- 单个代理节点链接，或订阅地址(URL)
@@ -33,9 +33,19 @@ fi
 
 # ---- 获取原始配置内容 ----
 if [ -n "$CONFIG_URL" ]; then
-  command -v curl &>/dev/null && FETCH="curl -sL" || FETCH="wget -qO-"
+  command -v curl &>/dev/null && FETCH="curl -sSL -f --max-time 20" || FETCH="wget -qO- --timeout=20 --tries=3"
   echo "[INFO] 从订阅地址获取代理配置: $CONFIG_URL"
-  RAW=$($FETCH "$CONFIG_URL")
+  RAW=""
+  for attempt in 1 2 3; do
+    RAW=$($FETCH "$CONFIG_URL" || true)
+    if [ -n "$RAW" ]; then
+      break
+    fi
+    if [ "$attempt" -lt 3 ]; then
+      echo "[WARN] 第 ${attempt} 次获取订阅内容为空，3 秒后重试..."
+      sleep 3
+    fi
+  done
   if [ -z "$RAW" ]; then
     echo "[ERROR] 无法获取代理配置（$CONFIG_URL）"
     exit 1
@@ -480,3 +490,4 @@ fi
 echo "[SUCCESS] ✅ 代理连接成功"
 echo "PROXY_SERVER=socks5://127.0.0.1:1080" >> $GITHUB_ENV
 exit 0
+
